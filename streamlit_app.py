@@ -104,7 +104,7 @@ subset = subset[subset["Country"].isin(countries)]
 cancer = st.selectbox(
     "Cancer",
     options=sorted(df["Cancer"].unique()),
-    index=sorted(df["Cancer"].unique()).index("Malignant neoplasm of stomach")
+    index=sorted(df["Cancer"].unique()).index("Leukaemia")
 )
 subset = subset[subset["Cancer"] == cancer]
 ### P2.4 ###
@@ -127,13 +127,21 @@ chart = alt.Chart(subset).mark_rect().encode(
     y=alt.Y("Country:N", title="Country"),
     color=alt.Color(
         "Rate:Q",
-        scale=alt.Scale(type="log", domain=[0.01, 1000], clamp=True),  # 对数刻度
+        scale=alt.Scale(type="log", domain=[0.01, 1000], clamp=True), 
         title="Mortality rate per 100k"
     ),
     tooltip=["Rate"],
 ).properties(
     title=f"{cancer} mortality rates for {'males' if sex == 'M' else 'females'} in {year}",
 )
+
+chart_2 = alt.Chart(subset).mark_bar().encode(
+    x=alt.X("sum(Pop):Q", title="Sum of population size"),
+    y=alt.Y("Country:N", title="Country"),
+    tooltip=["Country", alt.Tooltip("sum(Pop):Q", title="Population")]
+)
+
+chart = chart & chart_2
 
 ### P2.5 ###
 
