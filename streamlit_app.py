@@ -137,7 +137,7 @@ chart = alt.Chart(subset).mark_rect().encode(
 
 chart_2 = alt.Chart(subset).mark_bar().encode(
     x=alt.X("sum(Pop):Q", title="Sum of population size"),
-    y=alt.Y("Country:N", title="Country"),
+    y=alt.Y("Country:N", title="Country", sort="-x"),
     tooltip=["Country", alt.Tooltip("sum(Pop):Q", title="Population")]
 )
 
