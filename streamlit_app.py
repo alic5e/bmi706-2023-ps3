@@ -73,8 +73,7 @@ subset = df[df["Year"] == year]
 # replace with st.radio
 sex = st.radio(
     "Sex",
-    options=["M", "F"],
-    format_func=lambda x: "Male" if x == "M" else "Female"
+    options=["M", "F"]
 )
 subset = subset[subset["Sex"] == sex]
 ### P2.2 ###
@@ -135,14 +134,6 @@ chart = alt.Chart(subset).mark_rect().encode(
 ).properties(
     title=f"{cancer} mortality rates for {'males' if sex == 'M' else 'females'} in {year}",
 )
-
-population_chart = alt.Chart(subset).mark_bar().encode(
-    x=alt.X("sum(Population):Q", title="Sum of population size"),
-    y=alt.Y("Country:N", title="Country"),
-    tooltip=["Country", "sum(Population)"]
-)
-
-chart = alt.vconcat(chart, population_chart)
 
 ### P2.5 ###
 
