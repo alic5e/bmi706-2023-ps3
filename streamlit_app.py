@@ -59,15 +59,23 @@ df = load_data()
 st.write("## Age-specific cancer mortality rates")
 
 ### P2.1 ###
-# replace with st.slider
-year = 2012
+year = st.slider(
+    "Year",
+    min_value=int(df["Year"].min()),
+    max_value=int(df["Year"].max()),
+    value=2012
+)
 subset = df[df["Year"] == year]
 ### P2.1 ###
 
 
 ### P2.2 ###
 # replace with st.radio
-sex = "M"
+sex = st.radio(
+    "Sex",
+    options=["M", "F"],
+    format_func=lambda x: "Male" if x == "M" else "Female"
+)
 subset = subset[subset["Sex"] == sex]
 ### P2.2 ###
 
@@ -75,22 +83,30 @@ subset = subset[subset["Sex"] == sex]
 ### P2.3 ###
 # replace with st.multiselect
 # (hint: can use current hard-coded values below as as `default` for selector)
-countries = [
-    "Austria",
-    "Germany",
-    "Iceland",
-    "Spain",
-    "Sweden",
-    "Thailand",
-    "Turkey",
-]
+countries = st.multiselect(
+    "Countries",
+    options=sorted(df["Country"].unique()),
+    default=[
+        "Austria",
+        "Germany",
+        "Iceland",
+        "Spain",
+        "Sweden",
+        "Thailand",
+        "Turkey",
+    ]
+)
 subset = subset[subset["Country"].isin(countries)]
 ### P2.3 ###
 
 
 ### P2.4 ###
 # replace with st.selectbox
-cancer = "Malignant neoplasm of stomach"
+cancer = st.selectbox(
+    "Cancer",
+    options=sorted(df["Cancer"].unique()),
+    index=sorted(df["Cancer"].unique()).index("Malignant neoplasm of stomach")
+)
 subset = subset[subset["Cancer"] == cancer]
 ### P2.4 ###
 
@@ -107,14 +123,27 @@ ages = [
     "Age >64",
 ]
 
-chart = alt.Chart(subset).mark_bar().encode(
-    x=alt.X("Age", sort=ages),
-    y=alt.Y("Rate", title="Mortality rate per 100k"),
-    color="Country",
+chart = alt.Chart(subset).mark_rect().encode(
+    x=alt.X("Age", sort=ages, title="Age"),
+    y=alt.Y("Country:N", title="Country"),
+    color=alt.Color(
+        "Rate:Q",
+        scale=alt.Scale(type="log", domain=[0.01, 1000], clamp=True),  # 对数刻度
+        title="Mortality rate per 100k"
+    ),
     tooltip=["Rate"],
 ).properties(
     title=f"{cancer} mortality rates for {'males' if sex == 'M' else 'females'} in {year}",
 )
+
+population_chart = alt.Chart(subset).mark_bar().encode(
+    x=alt.X("sum(Population):Q", title="Sum of population size"),
+    y=alt.Y("Country:N", title="Country"),
+    tooltip=["Country", "sum(Population)"]
+)
+
+chart = alt.vconcat(chart, population_chart)
+
 ### P2.5 ###
 
 st.altair_chart(chart, use_container_width=True)
